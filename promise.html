@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Promise</title>
+  <style>
+    *{
+        margin: 0;
+        padding: 0;
+    }
+    div{
+        height: 100vh;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+    input{
+        width: 50%;
+        height: 40px;
+        padding: 0 5px;
+        font-size: 20px;
+    }
+    button{
+        width: 100px;
+        height: 40px;
+        font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+    <div>
+        <input type="text" placeholder="Enter URL"><br><br>
+        <button>Download file</button>
+    </div>
+  <script>
+    const urlInput = document.querySelector("input");
+    const downloadBtn = document.querySelector("button");
+
+    downloadBtn.addEventListener("click", () => {
+    downloadFile(urlInput.value)
+        .then(() => {
+        alert("Download successful");
+        })
+        .catch((error) => {
+        alert("Failed to download: " + error.message);
+        });
+    });
+
+    function downloadFile(url) {
+    return new Promise(async (resolve, reject) => {
+        try {
+        const response = await fetch(url);
+
+        if (!response.ok) {
+            throw new Error("Failed to fetch the file");
+        }
+
+        const file = await response.blob();
+        const filename = getFilenameFromURL(url);
+
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(file);
+        link.download = filename;
+        link.style.display = "none";
+        document.body.appendChild(link);
+
+        link.click();
+        document.body.removeChild(link);
+
+        resolve();
+        } catch (error) {
+        reject(error);
+        }
+    });
+    }
+
+    function getFilenameFromURL(url) {
+    const urlParts = url.split("/");
+    return urlParts[urlParts.length - 1];
+    }
+
+  </script>
+</body>
+</html>
